@@ -1,0 +1,6 @@
+{
+  "name": "KYZ Sound Pro",
+  "description": "Premium campaign for the ultimate active noise cancellation earbuds, KYZ Sound Pro.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

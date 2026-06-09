@@ -1,0 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Anton", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-brand: #C5FF00; /* Electric lime brand color */
+  --color-brand-light: #FAFDF0; /* Extremely soft lime tint for light mode cards and highlights */
+  --color-ink: #08080F; /* Ultra-dark primary text */
+  --color-charcoal: #171822; /* High-contrast structural grey */
+  --color-muted-grey: #454756; /* Refined dark grey for comfortable reading on light mode */
+  --color-light-bg: #FAFAFC; /* Premium light mode background */
+  --color-glass-border: rgba(8, 8, 15, 0.08);
+}
+
+@layer base {
+  body {
+    background-color: var(--color-light-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+}
