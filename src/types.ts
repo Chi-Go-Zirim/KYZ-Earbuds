@@ -22,6 +22,8 @@ export interface SpecItem {
 
 export interface WaitlistForm {
   firstName: string;
+  lastName: string;
   email: string;
+  phoneNumber: string;
   interest: string;
 }

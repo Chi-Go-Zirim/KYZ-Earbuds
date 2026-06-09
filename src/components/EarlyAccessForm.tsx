@@ -1,12 +1,14 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Mail, User, Star, CheckCircle, Bell, Users, BookmarkCheck } from 'lucide-react';
+import { Mail, User, Star, CheckCircle, Bell, Users, BookmarkCheck, Phone } from 'lucide-react';
 import { WaitlistForm } from '../types';
 
 export default function EarlyAccessForm() {
   const [formData, setFormData] = useState<WaitlistForm>({
     firstName: '',
+    lastName: '',
     email: '',
+    phoneNumber: '',
     interest: 'discount',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,7 +37,7 @@ export default function EarlyAccessForm() {
         const subs = JSON.parse(storedSubscribers);
         if (subs.length > 0) {
           const loadedRecent = subs.map((sub: any) => ({
-            name: `${sub.firstName} ${sub.firstName.length > 1 ? sub.firstName.charAt(0) : ''}.`,
+            name: `${sub.firstName} ${sub.lastName ? (sub.lastName.length > 0 ? sub.lastName.charAt(0) : '') : (sub.firstName.length > 1 ? sub.firstName.charAt(0) : '')}.`,
             time: 'Just now',
           }));
           setRecentSignups((prev) => [...loadedRecent, ...prev].slice(0, 4));
@@ -48,7 +50,12 @@ export default function EarlyAccessForm() {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!formData.firstName.trim() || !formData.email.trim()) {
+    if (
+      !formData.firstName.trim() || 
+      !formData.lastName.trim() || 
+      !formData.email.trim() || 
+      !formData.phoneNumber.trim()
+    ) {
       alert('Kindly fill in all required fields to register.');
       return;
     }
@@ -73,7 +80,7 @@ export default function EarlyAccessForm() {
       localStorage.setItem('kyz_subscribers', JSON.stringify(subs));
 
       // Append to active feed
-      const formattedName = `${formData.firstName} ${formData.firstName.length > 0 ? formData.firstName.charAt(0) : ''}.`;
+      const formattedName = `${formData.firstName} ${formData.lastName.length > 0 ? formData.lastName.charAt(0) : ''}.`;
       setRecentSignups((prev) => [
         { name: formattedName, time: 'Just now' },
         ...prev,
@@ -156,7 +163,7 @@ export default function EarlyAccessForm() {
           </div>
 
           {/* Right Column waitlist form block */}
-          <div className="lg:col-span-6 w-full max-w-md mx-auto">
+          <div className="lg:col-span-6 w-full max-w-xl mx-auto">
             <AnimatePresence mode="wait">
               {!isSuccess ? (
                 <motion.div
@@ -178,57 +185,82 @@ export default function EarlyAccessForm() {
 
                   <form onSubmit={handleSubmit} className="space-y-5 text-left" id="priority-waitlist-form">
                     
-                    {/* First name field */}
-                    <div className="space-y-2">
-                      <label className="block text-xs font-mono uppercase tracking-wider font-bold text-muted-grey">
-                        First Name
-                      </label>
-                      <div className="relative">
-                        <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                        <input
-                          type="text"
-                          required
-                          value={formData.firstName}
-                          onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                          placeholder="Your official name"
-                          className="w-full bg-white border border-glass-border focus:border-brand focus:ring-1 focus:ring-brand/20 outline-none rounded-xl py-3.5 pl-12 pr-4 text-sm text-ink transition-all placeholder:text-gray-400"
-                        />
+                    {/* Columns layout for Name inputs */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* First name field */}
+                      <div className="space-y-2">
+                        <label className="block text-xs font-mono uppercase tracking-wider font-bold text-muted-grey">
+                          First Name
+                        </label>
+                        <div className="relative">
+                          <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                          <input
+                            type="text"
+                            required
+                            value={formData.firstName}
+                            onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                            placeholder="John"
+                            className="w-full bg-white border border-glass-border focus:border-brand focus:ring-1 focus:ring-brand/20 outline-none rounded-xl py-3 pl-11 pr-4 text-sm text-ink transition-all placeholder:text-gray-400"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Last name field */}
+                      <div className="space-y-2">
+                        <label className="block text-xs font-mono uppercase tracking-wider font-bold text-muted-grey">
+                          Last Name
+                        </label>
+                        <div className="relative">
+                          <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                          <input
+                            type="text"
+                            required
+                            value={formData.lastName}
+                            onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                            placeholder="Doe"
+                            className="w-full bg-white border border-glass-border focus:border-brand focus:ring-1 focus:ring-brand/20 outline-none rounded-xl py-3 pl-11 pr-4 text-sm text-ink transition-all placeholder:text-gray-400"
+                          />
+                        </div>
                       </div>
                     </div>
 
-                    {/* Email field */}
-                    <div className="space-y-2">
-                      <label className="block text-xs font-mono uppercase tracking-wider font-bold text-muted-grey">
-                        Email Address
-                      </label>
-                      <div className="relative">
-                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                        <input
-                          type="email"
-                          required
-                          value={formData.email}
-                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                          placeholder="you@email.com"
-                          className="w-full bg-white border border-glass-border focus:border-brand focus:ring-1 focus:ring-brand/20 outline-none rounded-xl py-3.5 pl-12 pr-4 text-sm text-ink transition-all placeholder:text-gray-400"
-                        />
+                    {/* Columns layout for Contact inputs */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Email field */}
+                      <div className="space-y-2">
+                        <label className="block text-xs font-mono uppercase tracking-wider font-bold text-muted-grey">
+                          Email Address
+                        </label>
+                        <div className="relative">
+                          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                          <input
+                            type="email"
+                            required
+                            value={formData.email}
+                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                            placeholder="you@email.com"
+                            className="w-full bg-white border border-glass-border focus:border-brand focus:ring-1 focus:ring-brand/20 outline-none rounded-xl py-3 pl-11 pr-4 text-sm text-ink transition-all placeholder:text-gray-400"
+                          />
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Choose Interest selector */}
-                    <div className="space-y-2">
-                      <label className="block text-xs font-mono uppercase tracking-wider font-bold text-muted-grey">
-                        Pre-Order Interest
-                      </label>
-                      <select
-                        value={formData.interest}
-                        onChange={(e) => setFormData({ ...formData, interest: e.target.value })}
-                        className="w-full bg-white border border-glass-border focus:border-brand focus:ring-1 focus:ring-brand/30 outline-none rounded-xl py-3.5 px-4 text-xs font-mono uppercase tracking-wider text-charcoal font-semibold transition-all cursor-pointer"
-                        id="form-interest-select"
-                      >
-                        <option value="discount">40% Launch Discount priority</option>
-                        <option value="beta">Developer / Beta Testing Invitation</option>
-                        <option value="specs">Direct manufacturing status alerts</option>
-                      </select>
+                      {/* Phone number field */}
+                      <div className="space-y-2">
+                        <label className="block text-xs font-mono uppercase tracking-wider font-bold text-muted-grey">
+                          Phone Number
+                        </label>
+                        <div className="relative">
+                          <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                          <input
+                            type="tel"
+                            required
+                            value={formData.phoneNumber}
+                            onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                            placeholder="+1 (555) 123-4567"
+                            className="w-full bg-white border border-glass-border focus:border-brand focus:ring-1 focus:ring-brand/20 outline-none rounded-xl py-3 pl-11 pr-4 text-sm text-ink transition-all placeholder:text-gray-400"
+                          />
+                        </div>
+                      </div>
                     </div>
 
                     {/* Consent checkbox text */}
@@ -269,7 +301,7 @@ export default function EarlyAccessForm() {
                       Priority Reserved!
                     </h3>
                     <p className="text-sm text-muted-grey leading-relaxed">
-                      Congratulations, <span className="font-bold text-ink">{formData.firstName}</span>! Your tier-1 launch invite was successfully registered to <span className="font-bold text-ink">{formData.email}</span>.
+                      Congratulations, <span className="font-bold text-ink">{formData.firstName} {formData.lastName}</span>! Your tier-1 launch invite was successfully registered to <span className="font-bold text-ink">{formData.email}</span> with phone number <span className="font-bold text-ink">{formData.phoneNumber}</span>.
                     </p>
                   </div>
 
