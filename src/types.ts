@@ -26,4 +26,5 @@ export interface WaitlistForm {
   email: string;
   phoneNumber: string;
   interest: string;
+  colour: string;
 }

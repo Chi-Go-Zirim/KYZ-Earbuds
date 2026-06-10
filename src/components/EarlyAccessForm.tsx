@@ -10,6 +10,7 @@ export default function EarlyAccessForm() {
     email: '',
     phoneNumber: '',
     interest: 'discount',
+    colour: 'black',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -62,33 +63,61 @@ export default function EarlyAccessForm() {
 
     setIsSubmitting(true);
 
-    // Simulate server side waitlist ingestion
-    setTimeout(() => {
-      const nextCount = totalSignups + 1;
-      setTotalSignups(nextCount);
-      localStorage.setItem('kyz_total_signups', nextCount.toString());
+    // Build JSON payload
+    const payload = {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      phoneNumber: formData.phoneNumber,
+      interest: formData.interest,
+      colour: formData.colour,
+      registeredAt: new Date().toISOString()
+    };
 
-      // Save to subscribers array
-      const existingSubsStr = localStorage.getItem('kyz_subscribers') || '[]';
-      let subs = [];
-      try {
-        subs = JSON.parse(existingSubsStr);
-      } catch (err) {
-        subs = [];
-      }
-      subs.unshift(formData);
-      localStorage.setItem('kyz_subscribers', JSON.stringify(subs));
+    // Send response to backend API proxy to bypass cross-origin browser (CORS) blocks
+    fetch('/api/submit-waitlist', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          throw new Error(`Data proxy submission failed with status: ${response.status}`);
+        }
+        console.log('Successfully proxy-submitted waitlist data.');
+      })
+      .catch((error) => {
+        console.error('Submission proxy error:', error);
+      })
+      .finally(() => {
+        // Complete the waitlist signup sequence locally
+        const nextCount = totalSignups + 1;
+        setTotalSignups(nextCount);
+        localStorage.setItem('kyz_total_signups', nextCount.toString());
 
-      // Append to active feed
-      const formattedName = `${formData.firstName} ${formData.lastName.length > 0 ? formData.lastName.charAt(0) : ''}.`;
-      setRecentSignups((prev) => [
-        { name: formattedName, time: 'Just now' },
-        ...prev,
-      ].slice(0, 4));
+        // Save to subscribers array
+        const existingSubsStr = localStorage.getItem('kyz_subscribers') || '[]';
+        let subs = [];
+        try {
+          subs = JSON.parse(existingSubsStr);
+        } catch (err) {
+          subs = [];
+        }
+        subs.unshift(formData);
+        localStorage.setItem('kyz_subscribers', JSON.stringify(subs));
 
-      setIsSubmitting(false);
-      setIsSuccess(true);
-    }, 1200);
+        // Append to active feed
+        const formattedName = `${formData.firstName} ${formData.lastName.length > 0 ? formData.lastName.charAt(0) : ''}.`;
+        setRecentSignups((prev) => [
+          { name: formattedName, time: 'Just now' },
+          ...prev,
+        ].slice(0, 4));
+
+        setIsSubmitting(false);
+        setIsSuccess(true);
+      });
   };
 
   return (
@@ -263,6 +292,24 @@ export default function EarlyAccessForm() {
                       </div>
                     </div>
 
+                    {/* Colour field */}
+                    <div className="space-y-2">
+                      <label className="block text-xs font-mono uppercase tracking-wider font-bold text-muted-grey" htmlFor="form-colour-select">
+                        Colour Preference
+                      </label>
+                      <select
+                        id="form-colour-select"
+                        value={formData.colour}
+                        onChange={(e) => setFormData({ ...formData, colour: e.target.value })}
+                        className="w-full bg-white border border-glass-border focus:border-brand focus:ring-1 focus:ring-brand/30 outline-none rounded-xl py-3 px-4 text-xs font-mono uppercase tracking-wider text-charcoal font-semibold transition-all cursor-pointer"
+                      >
+                        <option value="black">Black</option>
+                        <option value="white">White</option>
+                        <option value="blue">Blue</option>
+                        <option value="ash">Ash</option>
+                      </select>
+                    </div>
+
                     {/* Consent checkbox text */}
                     <p className="text-[11px] text-muted-grey leading-relaxed">
                       By registering, you reserve your tier allocation position. Zero upfront payment required. Cancel anytime.
@@ -310,6 +357,10 @@ export default function EarlyAccessForm() {
                     <div className="flex justify-between border-b border-gray-200/50 pb-2">
                       <span className="text-muted-grey">Queue Number</span>
                       <span className="font-bold text-ink">#{totalSignups}</span>
+                    </div>
+                    <div className="flex justify-between border-b border-gray-200/50 pb-2">
+                      <span className="text-muted-grey">Selected Colour</span>
+                      <span className="font-bold text-ink uppercase">{formData.colour}</span>
                     </div>
                     <div className="flex justify-between border-b border-gray-200/50 pb-2">
                       <span className="text-muted-grey">Reserved Interest</span>
